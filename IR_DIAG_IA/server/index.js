@@ -23,11 +23,10 @@ if (existsSync(envPath)) {
     }
   })
   console.log('Environment variables loaded from .env')
-  // Debug: Check if GEMINI_API_KEY was loaded
-  if (process.env.GEMINI_API_KEY) {
-    console.log('✅ GEMINI_API_KEY loaded (length:', process.env.GEMINI_API_KEY.length, ')')
+  if (process.env.ANTHROPIC_API_KEY) {
+    console.log('✅ ANTHROPIC_API_KEY loaded (length:', process.env.ANTHROPIC_API_KEY.length, ')')
   } else {
-    console.log('⚠️ GEMINI_API_KEY not found in .env file')
+    console.log('⚠️ ANTHROPIC_API_KEY not found in .env file')
   }
 } else {
   console.log('No .env file found. Using default environment variables.')
