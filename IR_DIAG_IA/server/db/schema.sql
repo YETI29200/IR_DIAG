@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS consultants (
     job_title TEXT,
     phone TEXT,
     signature_html TEXT,
+    suspended INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
