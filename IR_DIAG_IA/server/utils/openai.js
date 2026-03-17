@@ -1,5 +1,5 @@
-// ai-recommendations.js (formerly openai-recommendations.js)
-// Now using Google Gemini API instead of OpenAI.
+// ai-recommendations.js
+// Now using Anthropic Claude API.
 // Maintains backward compatibility with existing function signatures.
 
 
@@ -14,11 +14,11 @@ function logError(...args) {
 
 // Read environment variables dynamically
 function getOpenAIApiKey() {
-  return process.env.OPENAI_API_KEY
+  return process.env.ANTHROPIC_API_KEY
 }
 
 function getOpenAIModel() {
-  return process.env.OPENAI_MODEL || 'gpt-4o-mini'
+  return process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6'
 }
 
 // ---------- Canonical dimensions (IMPORTANT) ----------
@@ -318,40 +318,44 @@ EXPECTED JSON FORMAT:
 Authorized Dimension Keys: ${validDimensions}
 `
 
-  // Gemini Initialization
-  // OpenAI API Call
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  // Anthropic API Call
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
       model: getOpenAIModel(),
+      max_tokens: 4096,
+      system: systemInstruction,
       messages: [
-        { role: 'system', content: systemInstruction },
         { role: 'user', content: userPrompt }
-      ],
-      response_format: { type: "json_object" }
+      ]
     })
   });
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`OpenAI API error: ${response.status} ${errText}`);
+    throw new Error(`Anthropic API error: ${response.status} ${errText}`);
   }
 
   const data = await response.json();
-  const responseText = data.choices[0].message.content;
+  let responseText = data.content[0].text;
 
-  console.log(`[Gemini Debug] RAW CONTENT for ${dimKey}:`, responseText)
+  // Extract JSON from potential markdown code blocks
+  const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
+  if (jsonMatch) responseText = jsonMatch[1].trim()
+
+  log(`[Claude Debug] RAW CONTENT for ${dimKey}:`, responseText)
 
   let parsed
   try {
     parsed = JSON.parse(responseText)
   } catch (e) {
-    console.error(`[Gemini Debug] JSON parsing failed for ${dimKey}:`, e)
-    throw new Error('Invalid JSON response from Gemini')
+    console.error(`[Claude Debug] JSON parsing failed for ${dimKey}:`, e)
+    throw new Error('Invalid JSON response from Claude')
   }
 
   let synthesis = parsed?.dimension_synthesis || ''
@@ -548,14 +552,16 @@ export async function generateMissionSummary(
       ? `Generate a summary for mission "${organizationName}". Maturity: ${maturityPercent}%, Respondents rate: ${respondentsPercent}%, Satisfaction: ${satisfactionStars}/5 stars. Type: ${questionnaireType}.`
       : `Génère une synthèse pour la mission "${organizationName}". Maturité: ${maturityPercent}%, Taux de réponse: ${respondentsPercent}%, Satisfaction: ${satisfactionStars}/5 étoiles. Type: ${questionnaireType}.`
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
         model: getOpenAIModel(),
+        max_tokens: 1024,
         messages: [
           { role: 'user', content: prompt }
         ]
@@ -564,11 +570,11 @@ export async function generateMissionSummary(
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`OpenAI API error: ${response.status} ${errText}`);
+      throw new Error(`Anthropic API error: ${response.status} ${errText}`);
     }
 
     const data = await response.json();
-    return data.choices[0].message.content
+    return data.content[0].text
 
   } catch (error) {
     logError(`[OpenAI] Error generating summary:`, error)
