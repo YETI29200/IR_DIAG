@@ -1,0 +1,69 @@
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin card {
+  background: white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  padding: $spacing-lg;
+}
+
+@mixin button-primary {
+  background-color: $primary;
+  color: white;
+  border: none;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $radius-md;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: $primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-secondary {
+  background-color: white;
+  color: $primary;
+  border: 1px solid $primary;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: $radius-md;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: $gray-50;
+  }
+}
+
+@mixin input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $gray-300;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1); // Couleur bleu Images & Réseaux
+  }
+}
+

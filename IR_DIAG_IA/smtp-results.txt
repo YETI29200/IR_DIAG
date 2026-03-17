@@ -1,0 +1,18 @@
+=== Configuration SMTP ===
+Host: exchange.images-et-reseaux.com
+Port: 25
+User: None (relay mode)
+From: diag@images-et-reseaux.com
+==========================
+
+--- Test 1: Avec STARTTLS (config actuelle) ---
+RESULT_1: FAIL - Timeout (code: ETIMEDOUT)
+--- Test 2: Sans TLS (ignoreTLS: true) ---
+RESULT_2: FAIL - Timeout (code: ETIMEDOUT)
+--- Test 3: TLS opportuniste ---
+RESULT_3: FAIL - Timeout (code: ETIMEDOUT)
+
+=== RESUME ===
+Test 1 (STARTTLS):       FAIL
+Test 2 (ignoreTLS):      FAIL
+Test 3 (opportunistic):  FAIL

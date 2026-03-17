@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+    --color-cyan-primary: #00B1E6;
+    --color-yellow-primary: #FFDC00;
+    --font-sans: "Open Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-impact: "Oswald", sans-serif;
+    --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

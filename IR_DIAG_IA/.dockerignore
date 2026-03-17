@@ -1,0 +1,17 @@
+node_modules
+dist
+.env
+.git
+.vscode
+data/*.db
+data/*.db-wal
+data/*.db-shm
+*.log
+npm-debug.log*
+test_rapport_*.pdf
+test_pdf_input.json
+test_data.json
+README.md
+DSI_*.md
+*.bat
+*.cjs

@@ -1,0 +1,54 @@
+{
+    "scores": [
+        10,
+        20,
+        30,
+        40,
+        50
+    ],
+    "labels": [
+        "Usages de l’IA",
+        "Data",
+        "Compétences & Culture",
+        "Infrastructure",
+        "Stratégie & Vision"
+    ],
+    "recommendations_data": [
+        {
+            "title": "T1",
+            "description": "D1",
+            "actions": [
+                "A1"
+            ]
+        },
+        {
+            "title": "T2",
+            "description": "D2",
+            "actions": [
+                "A2"
+            ]
+        },
+        {
+            "title": "T3",
+            "description": "D3",
+            "actions": [
+                "A3"
+            ]
+        },
+        {
+            "title": "T4",
+            "description": "D4",
+            "actions": [
+                "A4"
+            ]
+        },
+        {
+            "title": "T5",
+            "description": "D5",
+            "actions": [
+                "A5"
+            ]
+        }
+    ],
+    "organization": "Test Org"
+}

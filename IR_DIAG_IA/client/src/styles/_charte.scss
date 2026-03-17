@@ -1,0 +1,40 @@
+// Charte graphique Images & Réseaux
+// Basée sur CHARTE_I&R.pdf
+
+// Couleurs principales Images & Réseaux
+// Couleurs principales Kepler
+$ir-blue: #00B1E6; // Cyan Kepler
+$ir-blue-dark: #008eb8;
+$ir-blue-light: #33c1eb;
+$ir-red: #E60012; // Rouge Kepler
+$ir-red-dark: #B3000E;
+$ir-red-light: #FF3344;
+
+// Couleurs secondaires
+$ir-yellow: #FFDC00; // Jaune Kepler
+$ir-gray: #666666;
+$ir-gray-light: #CCCCCC;
+$ir-white: #FFFFFF;
+$ir-black: #000000; // Noir
+
+// Application des couleurs à la palette existante
+// Override des variables définies dans _variables.scss
+$primary: $ir-blue;
+$primary-dark: $ir-blue-dark;
+$primary-light: $ir-blue-light;
+$secondary: #FFDC00; // Jaune Kepler ($ir-yellow)
+$danger: $ir-red;
+$danger-dark: $ir-red-dark;
+$danger-light: $ir-red-light;
+
+// Typographie Images & Réseaux
+$ir-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$ir-font-weight-normal: 400;
+$ir-font-weight-medium: 500;
+$ir-font-weight-bold: 700;
+
+// Espacements (conservés)
+// $spacing-* déjà définis dans _variables.scss
+
+// Bordures arrondies (conservées)
+// $radius-* déjà définis dans _variables.scss
