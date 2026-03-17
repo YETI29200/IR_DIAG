@@ -1,0 +1,68 @@
+{
+  "fields": [
+    {
+      "id": "nom_de_l_entreprise",
+      "label": "Nom de l'entreprise",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "nom_du_participant",
+      "label": "Votre nom et prénom",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "role_du_participant",
+      "label": "Votre fonction",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "email_un_rapport_vous_sera_automatiquement_envoye_a_cette_ad",
+      "label": "Email (un rapport vous sera automatiquement envoyé à cette adresse)",
+      "type": "email",
+      "required": true
+    },
+    {
+      "id": "telephone",
+      "label": "Téléphone",
+      "type": "tel",
+      "required": false
+    },
+    {
+      "id": "code_postal",
+      "label": "Code postal",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "secteur_d_activite",
+      "label": "Secteur d'activité",
+      "type": "single_select",
+      "required": false,
+      "options": []
+    },
+    {
+      "id": "taille_de_l_entreprise",
+      "label": "Taille de l'entreprise",
+      "type": "single_select",
+      "required": false,
+      "options": []
+    },
+    {
+      "id": "comment_avez_vous_eu_connaissance_du_dispositif",
+      "label": "Comment avez-vous eu connaissance du dispositif ?",
+      "type": "single_select",
+      "required": false,
+      "options": []
+    },
+    {
+      "id": "souhaitez_vous_etre_recontacte_par_nos_equipes_pour_benefici",
+      "label": "Souhaitez-vous être recontacté par nos équipes pour bénéficier d'un accompagnement ?",
+      "type": "single_select",
+      "required": false,
+      "options": []
+    }
+  ]
+}
