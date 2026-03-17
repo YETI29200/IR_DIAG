@@ -72,7 +72,7 @@ const missionResult = db.prepare(`
   'Technologie',
   250,
   'flash',
-  'active'
+  'in_progress'
 )
 
 const missionId = missionResult.lastInsertRowid
