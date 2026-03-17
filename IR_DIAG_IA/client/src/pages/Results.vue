@@ -980,7 +980,7 @@
             v-if="openaiConfigured === false" 
             class="modal-warning"
           >
-            OpenAI n'est pas configuré côté serveur. Les paramètres de langue, ton et niveau de détail n'auront pas d'effet
+            Claude (IA) n'est pas configuré côté serveur. Les paramètres de langue, ton et niveau de détail n'auront pas d'effet
             et les recommandations resteront générées en mode statique (principalement en français).
           </p>
           <button class="modal-close" @click="closeRegenerateModal">
@@ -2356,11 +2356,11 @@ async function regenerateRecommendations() {
 
       const error = await response.json().catch(() => ({ error: 'Erreur inconnue' }))
       
-      // Message spécifique si l'erreur vient d'OpenAI (clé/quotas/réponse invalide, etc.)
+      // Message spécifique si l’erreur vient de Claude (clé/quotas/réponse invalide, etc.)
       if (error.openaiError) {
         alert(
-          `Erreur OpenAI lors de la régénération des recommandations : ` +
-          `${error.message || error.error || 'Erreur inconnue avec l’API OpenAI.'}`
+          `Erreur Claude IA lors de la régénération des recommandations : ` +
+          `${error.message || error.error || ‘Erreur inconnue avec l\’API Claude.’}`
         )
       } else {
         alert(`Erreur lors de la régénération: ${error.error || error.message || 'Erreur inconnue'}`)
@@ -2376,7 +2376,7 @@ async function regenerateRecommendations() {
       let showDetailedHelp = false
       
       if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-        errorMessage = 'La requête a pris trop de temps. Le serveur peut être surchargé ou l\'appel à OpenAI est trop long. Veuillez réessayer.'
+        errorMessage = 'La requête a pris trop de temps. Le serveur peut être surchargé ou l\'appel à Claude IA est trop long. Veuillez réessayer.'
       } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError') || error.message?.includes('ERR_CONNECTION_REFUSED')) {
         errorMessage = 'Impossible de se connecter au serveur backend.\n\nLe serveur backend (port 3000) n\'est probablement pas démarré.\n\nVérifiez que:\n1. Le serveur backend est démarré (cd server && node index.js)\n2. Le serveur écoute bien sur le port 3000\n3. Aucun firewall ne bloque la connexion'
         showDetailedHelp = true

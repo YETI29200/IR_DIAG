@@ -1,7 +1,6 @@
-// ai-recommendations.js (formerly openai-recommendations.js)
-// Now using Google Gemini API instead of OpenAI.
-// Maintains backward compatibility with existing function signatures.
-
+// ai-recommendations.js
+// Uses Anthropic Claude API for AI-powered recommendations.
+// Maintains backward-compatible function signatures.
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === 'development'
 
@@ -13,12 +12,12 @@ function logError(...args) {
 }
 
 // Read environment variables dynamically
-function getOpenAIApiKey() {
-  return process.env.OPENAI_API_KEY
+function getApiKey() {
+  return process.env.ANTHROPIC_API_KEY
 }
 
-function getOpenAIModel() {
-  return process.env.OPENAI_MODEL || 'gpt-4o-mini'
+function getModel() {
+  return process.env.CLAUDE_MODEL || 'claude-haiku-4-5-20251001'
 }
 
 // ---------- Canonical dimensions (IMPORTANT) ----------
@@ -188,11 +187,11 @@ function ensureExpectedDimensionScores(dimensionScores, questionnaireType) {
   const missing = required.filter((d) => !byDim.has(d))
   if (missing.length > 0) {
     logError(
-      `[OpenAI] ⚠️ DimensionScores incomplet pour questionnaire="${questionnaireType}". ` +
+      `[Claude] ⚠️ DimensionScores incomplet pour questionnaire="${questionnaireType}". ` +
       `Reçues=${inputDims.length}, attendues=${required.length}. Manquantes=${missing.join(', ')}`
     )
   } else {
-    log(`[OpenAI] ✅ DimensionScores OK: ${output.length}/${required.length}`)
+    log(`[Claude] ✅ DimensionScores OK: ${output.length}/${required.length}`)
   }
 
   return { required, scores: output, missing }
@@ -222,14 +221,14 @@ async function withRetry(fn, { retries = 2, baseDelayMs = 500 } = {}) {
     } catch (e) {
       lastErr = e
       const delay = baseDelayMs * Math.pow(2, i)
-      logError(`[OpenAI] ⚠️ Retry ${i + 1}/${retries + 1} after error: ${e?.message || e}`)
+      logError(`[Claude] ⚠️ Retry ${i + 1}/${retries + 1} after error: ${e?.message || e}`)
       await new Promise((r) => setTimeout(r, delay))
     }
   }
   throw lastErr
 }
 
-// ---------- Core Gemini call: generate recommendations for ONE dimension ----------
+// ---------- Core Claude call: generate recommendations for ONE dimension ----------
 async function generateForSingleDimension({
   organizationName,
   questionnaireType,
@@ -242,7 +241,7 @@ async function generateForSingleDimension({
   dimensionScore,
   requiredDimensions
 }) {
-  const apiKey = getOpenAIApiKey()
+  const apiKey = getApiKey()
   if (!apiKey) return null
 
   const dimKey = dimensionScore.dimension
@@ -250,7 +249,7 @@ async function generateForSingleDimension({
   const dimLabelEN = DIMENSION_NAMES_EN[dimKey] || dimKey
   const language = detectedLanguage || 'fr'
 
-  log(`[OpenAI] generateForSingleDimension: dimension="${dimKey}", language="${language}"`)
+  log(`[Claude] generateForSingleDimension: dimension="${dimKey}", language="${language}"`)
 
   const minRecs = detailLevel === 'concise' ? 2 : 3
   const maxRecs = detailLevel === 'exhaustive' ? 6 : detailLevel === 'detailed' ? 5 : detailLevel === 'concise' ? 3 : 4
@@ -265,10 +264,6 @@ async function generateForSingleDimension({
   }
   const targetLanguageName = languageNames[language] || language
 
-  // Gemini System instruction
-  // Force clearer instruction if language is english
-  const isEnglish = language === 'en'
-
   const systemInstruction = `You are an expert consultant in Digital Transformation and AI Maturity.
 Your task is to generate strategic recommendations.
 
@@ -276,13 +271,15 @@ CRITICAL RULES:
 1. LANGUAGE: You MUST answer EXCLUSIVELY in ${targetLanguageName} (${language}).
 2. If target is English, EVERYTHING in the JSON values (titles, descriptions, actions) MUST be in English.
 3. If target is French, EVERYTHING MUST be in French.
-4. Do not mix languages.`
+4. Do not mix languages.
+5. Respond ONLY with a valid JSON object. No markdown, no code fences, no explanation outside the JSON.`
 
   const userPrompt = `=== CRITICAL INSTRUCTIONS ===
 TARGET LANGUAGE: ${targetLanguageName} (${language}).
-OUTPUT FORMAT: JSONStrict.
+OUTPUT FORMAT: Pure JSON only (no markdown, no \`\`\`json fences).
 
 CONTEXT:
+- Organization: ${organizationName}
 - Type: ${questionnaireType === 'flash' ? 'Flash (5 dimensions)' : 'Complet (10 dimensions)'}
 - Tone: ${tone}
 - Detail Level: ${detailLevel}
@@ -318,40 +315,42 @@ EXPECTED JSON FORMAT:
 Authorized Dimension Keys: ${validDimensions}
 `
 
-  // Gemini Initialization
-  // OpenAI API Call
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: getOpenAIModel(),
+      model: getModel(),
+      max_tokens: 2048,
+      system: systemInstruction,
       messages: [
-        { role: 'system', content: systemInstruction },
         { role: 'user', content: userPrompt }
-      ],
-      response_format: { type: "json_object" }
+      ]
     })
-  });
+  })
 
   if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`OpenAI API error: ${response.status} ${errText}`);
+    const errText = await response.text()
+    throw new Error(`Claude API error: ${response.status} ${errText}`)
   }
 
-  const data = await response.json();
-  const responseText = data.choices[0].message.content;
+  const data = await response.json()
+  const responseText = data.content[0].text
 
-  console.log(`[Gemini Debug] RAW CONTENT for ${dimKey}:`, responseText)
+  log(`[Claude] RAW CONTENT for ${dimKey}:`, responseText)
+
+  // Strip markdown code fences if Claude adds them despite instructions
+  const cleaned = responseText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim()
 
   let parsed
   try {
-    parsed = JSON.parse(responseText)
+    parsed = JSON.parse(cleaned)
   } catch (e) {
-    console.error(`[Gemini Debug] JSON parsing failed for ${dimKey}:`, e)
-    throw new Error('Invalid JSON response from Gemini')
+    console.error(`[Claude] JSON parsing failed for ${dimKey}:`, e)
+    throw new Error('Invalid JSON response from Claude')
   }
 
   let synthesis = parsed?.dimension_synthesis || ''
@@ -362,7 +361,6 @@ Authorized Dimension Keys: ${validDimensions}
     synthesis = synthesis.charAt(0).toUpperCase() + synthesis.slice(1)
   }
 
-  // Safety checks
   if (!synthesis || synthesis.length < 20) {
     synthesis = `L'analyse de la maturité pour la dimension ${dimLabelFR} montre un score de ${dimensionScore.score}%. Cette thématique est jugée comme ${dimensionScore.level === 'low' ? 'prioritaire' : dimensionScore.level === 'medium' ? 'importante' : 'satisfaisante'} pour l'évolution de l'organisation.`
   }
@@ -404,9 +402,8 @@ function detectLanguage(params = {}) {
 
 // ---------- Public API ----------
 
-// Replaces isOpenAIConfigured but keeps the name for backward compat
 export function isOpenAIConfigured() {
-  return !!getOpenAIApiKey()
+  return !!getApiKey()
 }
 
 export async function generateRecommendationsWithParams(
@@ -415,7 +412,7 @@ export async function generateRecommendationsWithParams(
   organizationName,
   params = {}
 ) {
-  const apiKey = getOpenAIApiKey()
+  const apiKey = getApiKey()
   if (!apiKey) return null
 
   const expected = questionnaireType === 'flash' ? 5 : 10
@@ -425,8 +422,8 @@ export async function generateRecommendationsWithParams(
 
   const { required, scores, missing } = ensureExpectedDimensionScores(dimensionScores, questionnaireType)
 
-  log(`[OpenAI] ===== DÉBUT GÉNÉRATION RECOMMANDATIONS =====`)
-  log(`[OpenAI] Model: ${getOpenAIModel()}`)
+  log(`[Claude] ===== DÉBUT GÉNÉRATION RECOMMANDATIONS =====`)
+  log(`[Claude] Model: ${getModel()}`)
 
   const {
     language: explicitLanguage = null,
@@ -441,8 +438,7 @@ export async function generateRecommendationsWithParams(
     ? String(explicitLanguage).trim()
     : detectLanguage({ language: null, additionalContext })
 
-  // Concurrent generation
-  log(`[OpenAI] Generating recommendations for ${scores.length} dimensions with concurrency 3`)
+  log(`[Claude] Generating recommendations for ${scores.length} dimensions with concurrency 3`)
 
   const results = await mapWithConcurrency(scores, 3, async (dimScore) => {
     const dimKey = dimScore.dimension
@@ -485,7 +481,7 @@ export async function generateRecommendationsWithParams(
         throw new Error('No recommendations returned from AI')
       }
     } catch (error) {
-      logError(`[OpenAI] ❌ Fallback for dimension "${dimKey}":`, error.message)
+      logError(`[Claude] ❌ Fallback for dimension "${dimKey}":`, error.message)
       return [{
         dimension: dimKey,
         title: detectedLanguage === 'en'
@@ -509,10 +505,9 @@ export async function generateRecommendationsWithParams(
     }
   })
 
-  // Flatten results
   const all = results.flat()
 
-  log(`[OpenAI] Total recommandations générées: ${all.length}`)
+  log(`[Claude] Total recommandations générées: ${all.length}`)
   return all
 }
 
@@ -536,7 +531,7 @@ export async function generateMissionSummary(
   questionnaireType,
   params = {}
 ) {
-  const apiKey = getOpenAIApiKey()
+  const apiKey = getApiKey()
   if (!apiKey) {
     return `Synthèse de la mission ${organizationName}: Maturité IA & Data de ${maturityPercent}%, ${respondentsPercent}% de répondants. Satisfaction globale: ${satisfactionStars}/5 étoiles.`
   }
@@ -545,33 +540,35 @@ export async function generateMissionSummary(
     const { language = 'fr', maxLength = 500 } = params
 
     const prompt = language === 'en'
-      ? `Generate a summary for mission "${organizationName}". Maturity: ${maturityPercent}%, Respondents rate: ${respondentsPercent}%, Satisfaction: ${satisfactionStars}/5 stars. Type: ${questionnaireType}.`
-      : `Génère une synthèse pour la mission "${organizationName}". Maturité: ${maturityPercent}%, Taux de réponse: ${respondentsPercent}%, Satisfaction: ${satisfactionStars}/5 étoiles. Type: ${questionnaireType}.`
+      ? `Generate a concise summary (max ${maxLength} chars) for mission "${organizationName}". Maturity: ${maturityPercent}%, Respondents rate: ${respondentsPercent}%, Satisfaction: ${satisfactionStars}/5 stars. Type: ${questionnaireType}.`
+      : `Génère une synthèse concise (max ${maxLength} caractères) pour la mission "${organizationName}". Maturité: ${maturityPercent}%, Taux de réponse: ${respondentsPercent}%, Satisfaction: ${satisfactionStars}/5 étoiles. Type: ${questionnaireType}.`
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: getOpenAIModel(),
+        model: getModel(),
+        max_tokens: 512,
         messages: [
           { role: 'user', content: prompt }
         ]
       })
-    });
+    })
 
     if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`OpenAI API error: ${response.status} ${errText}`);
+      const errText = await response.text()
+      throw new Error(`Claude API error: ${response.status} ${errText}`)
     }
 
-    const data = await response.json();
-    return data.choices[0].message.content
+    const data = await response.json()
+    return data.content[0].text
 
   } catch (error) {
-    logError(`[OpenAI] Error generating summary:`, error)
+    logError(`[Claude] Error generating summary:`, error)
     return params.language === 'en'
       ? `Summary not available (AI Error: ${error.message})`
       : `Synthèse non disponible (Erreur IA: ${error.message})`
