@@ -2360,7 +2360,7 @@ async function regenerateRecommendations() {
       if (error.openaiError) {
         alert(
           `Erreur Claude IA lors de la régénération des recommandations : ` +
-          `${error.message || error.error || ‘Erreur inconnue avec l\’API Claude.’}`
+          `${error.message || error.error || "Erreur inconnue avec l’API Claude."}`
         )
       } else {
         alert(`Erreur lors de la régénération: ${error.error || error.message || 'Erreur inconnue'}`)
