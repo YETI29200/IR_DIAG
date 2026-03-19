@@ -1,5 +1,5 @@
 // Flash Diagnostic routes
-import { getDb } from '../db/index.js'
+import { getFlashDb } from '../db/index.js'
 import { readFileSync, existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -16,7 +16,7 @@ const FLASH_QUESTIONNAIRE_FILE = join(__dirname, '../../data/questionnaire_flash
 const CONTACT_FORM_FILE = join(__dirname, '../../data/formulaire_de_contact.json')
 
 export default async function flashRoutes(req, res, url, body) {
-    const db = getDb()
+    const db = getFlashDb()
 
     // GET /api/flash/config
     if (req.method === 'GET' && url.pathname === '/api/flash/config') {

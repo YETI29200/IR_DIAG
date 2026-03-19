@@ -1,5 +1,5 @@
 // Admin routes (backup, etc.)
-import { getDb } from '../db/index.js'
+import { getDmaDb, getFlashDb, DMA_DB_PATH, FLASH_DB_PATH } from '../db/index.js'
 import { copyFileSync, mkdirSync, existsSync, readdirSync, statSync, unlinkSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const DB_PATH = join(__dirname, '../../data/diagnostic.db')
 const BACKUP_DIR = join(__dirname, '../../data/backups')
 const MAX_BACKUPS = 10
 
@@ -17,7 +16,6 @@ function formatDate(d) {
 }
 
 function isAdmin(req) {
-  // Check roles in header (sent by frontend from localStorage)
   const rolesHeader = req.headers['x-user-roles']
   if (rolesHeader) {
     try {
@@ -25,13 +23,12 @@ function isAdmin(req) {
       return Array.isArray(roles) && roles.includes('admin')
     } catch {}
   }
-  // Also accept if Authorization header is present (basic auth check)
   return !!req.headers.authorization
 }
 
 export default async function adminRoutes(req, res, url, body) {
 
-  // POST /api/admin/backup — Crée une sauvegarde de la base de données
+  // POST /api/admin/backup — Sauvegarde des deux bases de données
   if (req.method === 'POST' && url.pathname === '/api/admin/backup') {
     if (!isAdmin(req)) {
       res.writeHead(403, { 'Content-Type': 'application/json' })
@@ -43,37 +40,42 @@ export default async function adminRoutes(req, res, url, body) {
       mkdirSync(BACKUP_DIR, { recursive: true })
 
       const date = formatDate(new Date())
-      const backupFile = join(BACKUP_DIR, `diagnostic_${date}.db`)
+      const dmaBackupFile = join(BACKUP_DIR, `DMA_${date}.db`)
+      const flashBackupFile = join(BACKUP_DIR, `flash_diag_${date}.db`)
 
       // Checkpoint WAL avant copie
-      const db = getDb()
-      try { db.pragma('wal_checkpoint(FULL)') } catch {}
+      const dmaDb = getDmaDb()
+      const flashDb = getFlashDb()
+      try { dmaDb.pragma('wal_checkpoint(FULL)') } catch {}
+      try { flashDb.pragma('wal_checkpoint(FULL)') } catch {}
 
-      copyFileSync(DB_PATH, backupFile)
+      // Copie des deux bases
+      if (existsSync(DMA_DB_PATH)) copyFileSync(DMA_DB_PATH, dmaBackupFile)
+      if (existsSync(FLASH_DB_PATH)) copyFileSync(FLASH_DB_PATH, flashBackupFile)
 
-      // Compter les enregistrements
+      // Statistiques
       let stats = {}
       try {
         stats = {
-          consultants: db.prepare('SELECT COUNT(*) as n FROM consultants').get()?.n ?? 0,
-          missions: db.prepare('SELECT COUNT(*) as n FROM missions').get()?.n ?? 0,
-          flash_diagnostics: db.prepare('SELECT COUNT(*) as n FROM flash_diagnostics').get()?.n ?? 0,
+          consultants: dmaDb.prepare('SELECT COUNT(*) as n FROM consultants').get()?.n ?? 0,
+          missions: dmaDb.prepare('SELECT COUNT(*) as n FROM missions').get()?.n ?? 0,
+          flash_diagnostics: flashDb.prepare('SELECT COUNT(*) as n FROM flash_diagnostics').get()?.n ?? 0,
         }
       } catch {}
 
-      // Supprimer les anciennes sauvegardes (garder MAX_BACKUPS)
-      const backups = readdirSync(BACKUP_DIR)
-        .filter(f => f.startsWith('diagnostic_') && f.endsWith('.db') && !f.includes('restore'))
-        .map(f => ({ name: f, time: statSync(join(BACKUP_DIR, f)).mtimeMs }))
-        .sort((a, b) => b.time - a.time)
-
-      if (backups.length > MAX_BACKUPS) {
-        backups.slice(MAX_BACKUPS).forEach(b => {
-          try { unlinkSync(join(BACKUP_DIR, b.name)) } catch {}
-        })
+      // Supprimer les anciennes sauvegardes (garder MAX_BACKUPS par type)
+      for (const prefix of ['DMA_', 'flash_diag_']) {
+        const backups = readdirSync(BACKUP_DIR)
+          .filter(f => f.startsWith(prefix) && f.endsWith('.db'))
+          .map(f => ({ name: f, time: statSync(join(BACKUP_DIR, f)).mtimeMs }))
+          .sort((a, b) => b.time - a.time)
+        if (backups.length > MAX_BACKUPS) {
+          backups.slice(MAX_BACKUPS).forEach(b => {
+            try { unlinkSync(join(BACKUP_DIR, b.name)) } catch {}
+          })
+        }
       }
 
-      // Retourner la liste des sauvegardes disponibles
       const availableBackups = readdirSync(BACKUP_DIR)
         .filter(f => f.endsWith('.db'))
         .map(f => {
@@ -85,8 +87,7 @@ export default async function adminRoutes(req, res, url, body) {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({
         success: true,
-        backup: backupFile,
-        filename: `diagnostic_${date}.db`,
+        backups: { dma: dmaBackupFile, flash: flashBackupFile },
         stats,
         availableBackups
       }))

@@ -3,7 +3,7 @@ import { createServer } from 'http'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { readFileSync, existsSync, createReadStream, statSync } from 'fs'
-import { getDb, closeDb } from './db/index.js'
+import { getDmaDb, getFlashDb, closeDb } from './db/index.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -34,39 +34,15 @@ if (existsSync(envPath)) {
 
 const PORT = process.env.PORT || 3000
 
-// Initialize database tables
-const db = getDb()
+// Initialisation des deux bases de données au démarrage
+const dmaDb = getDmaDb()
+const flashDb = getFlashDb()
 try {
-  // Create timeline_steps table if it doesn't exist
-  const tableInfo = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='timeline_steps'").get()
-
-  if (!tableInfo) {
-    db.prepare(`
-      CREATE TABLE IF NOT EXISTS timeline_steps (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        mission_id INTEGER NOT NULL,
-        step_number INTEGER NOT NULL,
-        step_type TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'pending',
-        planned_date TEXT,
-        completed_date TEXT,
-        notes TEXT,
-        created_at TEXT DEFAULT (datetime('now')),
-        updated_at TEXT DEFAULT (datetime('now')),
-        UNIQUE(mission_id, step_number, step_type),
-        FOREIGN KEY (mission_id) REFERENCES missions(id) ON DELETE CASCADE
-      )
-    `).run()
-
-    db.prepare('CREATE INDEX IF NOT EXISTS idx_timeline_steps_mission ON timeline_steps(mission_id)').run()
-    console.log('✅ Table "timeline_steps" created successfully')
-  }
-
-  // Force a WAL checkpoint on startup to merge any outstanding changes from the -wal file
-  db.pragma('wal_checkpoint(FULL)');
-  console.log('📦 Database Checkpoint performed on startup');
+  dmaDb.pragma('wal_checkpoint(FULL)')
+  flashDb.pragma('wal_checkpoint(FULL)')
+  console.log('✅ DMA.db et flash_diag.db initialisées (WAL checkpoint)')
 } catch (error) {
-  console.error('Error initializing database or performing checkpoint:', error)
+  console.error('Erreur initialisation bases de données:', error)
 }
 
 // Import route handlers
@@ -178,8 +154,8 @@ const server = createServer(async (req, res) => {
           return
         }
 
-        const missions = db.prepare(`
-          SELECT m.id, m.consultant_id as consultantId, m.organization_name as organizationName, m.sector, m.employees, 
+        const missions = dmaDb.prepare(`
+          SELECT m.id, m.consultant_id as consultantId, m.organization_name as organizationName, m.sector, m.employees,
                  m.questionnaire_type as questionnaireType, m.status, m.created_at as createdAt, m.maturity_percent as maturityPercent,
                  c.first_name || ' ' || c.last_name as consultantName,
                  (SELECT COUNT(*) FROM mission_contacts WHERE mission_id = m.id) as contactsCount,
@@ -190,8 +166,8 @@ const server = createServer(async (req, res) => {
           ORDER BY m.created_at DESC
         `).all()
 
-        const flashPublic = db.prepare(`
-          SELECT id, organization_name as organizationName, sector, employees, 
+        const flashPublic = flashDb.prepare(`
+          SELECT id, organization_name as organizationName, sector, employees,
                  'flash' as questionnaireType, 'active' as status, created_at as createdAt, global_score as maturityPercent,
                  'Public (Automatique)' as consultantName, 'public' as source,
                  1 as contactsCount, 1 as completedCount, 0 as servicesCount
