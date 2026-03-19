@@ -79,6 +79,7 @@ import emailRoutes from './routes/emails.js'
 import consultantRoutes from './routes/consultants.js'
 import exportRoutes from './routes/export.js'
 import flashRoutes from './routes/flash.js'
+import adminRoutes from './routes/admin.js'
 
 const server = createServer(async (req, res) => {
   // CORS headers - Allow both ports 5173 and 5175
@@ -88,7 +89,7 @@ const server = createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', origin)
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-User-Roles')
   res.setHeader('Access-Control-Allow-Credentials', 'true')
 
   // Handle preflight
@@ -233,6 +234,9 @@ const server = createServer(async (req, res) => {
       } else if (path.startsWith('/api/flash')) {
         console.log('Routing to flashRoutes')
         await flashRoutes(req, res, url, parsedBody)
+      } else if (path.startsWith('/api/admin/backup') || path.startsWith('/api/admin/backups')) {
+        console.log('Routing to adminRoutes')
+        await adminRoutes(req, res, url, parsedBody)
       } else if (req.method === 'GET' && !path.startsWith('/api')) {
         // Try to serve static file
         // Sanitize path to prevent directory traversal
