@@ -12,3 +12,7 @@ data/*.db-shm
 data/*.db-wal
 .vite/
 
+data/*.avant_recuperation
+data/backups/
+data/*.db-wal
+data/*.db-shm
