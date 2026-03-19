@@ -263,11 +263,11 @@
                     <td>{{ item.contact_name }}<br/><small>{{ item.contact_email }}</small></td>
                     <td>{{ item.department }} / {{ item.region }}</td>
                     <td>
-                      <div class="score-pill" :style="{ backgroundColor: getMaturityColor(item.global_score) }">
-                        {{ item.global_score }}%
+                      <div class="score-pill" :style="{ backgroundColor: getMaturityColor(item.global_score ?? 0) }">
+                        {{ item.global_score != null ? item.global_score + '%' : '-' }}
                       </div>
                     </td>
-                    <td>{{ item.maturity_level }}</td>
+                    <td>{{ item.maturity_level || '-' }}</td>
                     <td>{{ formatDate(item.created_at) }}</td>
                     <td class="actions-cell">
                       <button @click="downloadFlashPdf(item.id, item.organization_name)" class="btn-view">
@@ -432,7 +432,12 @@ async function loadFlashHistory() {
 
 function handleConsolidatedView() { router.push('/admin/consolidated') }
 function goToMission(id: number) { router.push(`/admin/missions/${id}`) }
-function formatDate(d: string) { return new Date(d).toLocaleDateString('fr-FR') }
+function formatDate(d: string) {
+  if (!d) return '-'
+  const date = new Date(d)
+  if (isNaN(date.getTime()) || date.getFullYear() < 2000) return '-'
+  return date.toLocaleDateString('fr-FR')
+}
 
 function getMaturityColor(p: number) {
   if (p < 25) return '#ef4444'
