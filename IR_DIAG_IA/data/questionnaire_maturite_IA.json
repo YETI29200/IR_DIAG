@@ -1,0 +1,155 @@
+{
+  "questionnaire": {
+    "title": "Questionnaire de maturité IA",
+    "description": "Évaluation du niveau de maturité d'une organisation sur 10 dimensions clés liées à l'intelligence artificielle.",
+    "scale": [
+      "Pas du tout d’accord",
+      "Plutôt pas d’accord",
+      "Plutôt d’accord",
+      "Tout à fait d’accord",
+      "Ne sais pas"
+    ],
+    "dimensions": [
+      {
+        "id": "ambition",
+        "title": "Ambition",
+        "questions": [
+          "Notre organisation souhaite mieux comprendre l’IA pour décider de son utilité réelle.",
+          "L’IA est vue comme un levier stratégique potentiel à moyen ou long terme.",
+          "L’envie d’expérimenter l’IA émane à la fois de la direction et du terrain.",
+          "L’IA est envisagée comme un outil pour mieux répondre aux attentes de nos usagers, clients ou partenaires.",
+          "Notre organisation a identifié des enjeux ou objectifs pour lesquels l’IA pourrait apporter de la valeur.",
+          "Nous avons commencé à réfléchir à ce que pourrait apporter l’IA à nos missions ou services.",
+          "Les projets IA sont perçus comme une opportunité d’innovation ou d’amélioration.",
+          "Des échanges ont eu lieu avec des parties prenantes internes sur la place future de l’IA."
+        ]
+      },
+      {
+        "id": "pilotage",
+        "title": "Pilotage",
+        "questions": [
+          "Des moyens (humains, financiers, temps) ont été alloués pour explorer ou expérimenter l’IA.",
+          "Nous avons commencé à suivre ou documenter les actions ou projets IA au sein de notre structure.",
+          "Notre organisation anticipe les évolutions réglementaires ou éthiques liées à l’usage de l’IA.",
+          "La direction soutient activement l’exploration ou la mise en place de projets en lien avec l’IA.",
+          "La réflexion autour de l’IA est intégrée dans les arbitrages stratégiques de l’organisation.",
+          "Des échanges ont été initiés au sein de la direction sur les impacts organisationnels liés à l’IA.",
+          "Un cadre stratégique a été défini pour initier l’intégration de l’IA.",
+          "Notre organisation a identifié un référent ou une équipe en charge du sujet de l’intelligence artificielle."
+        ]
+      },
+      {
+        "id": "organisation",
+        "title": "Organisation",
+        "questions": [
+          "Nous savons mobiliser des ressources internes pour tester de nouvelles approches.",
+          "La collaboration entre les services est encouragée dans les projets de transformation.",
+          "Les rôles et responsabilités dans les projets sont généralement bien définis.",
+          "L’impact de l’IA sur les méthodes de travail fait l’objet de discussions internes.",
+          "Nous avons la capacité d’expérimenter à petite échelle avant de généraliser un changement.",
+          "Notre organisation est capable d’identifier des activités répétitives ou automatisables.",
+          "Des initiatives d’amélioration continue ou de transformation sont déjà en place.",
+          "Nous avons une capacité à conduire des projets transversaux impliquant plusieurs services dans un cadre règlementaire."
+        ]
+      },
+      {
+        "id": "culture",
+        "title": "Culture",
+        "questions": [
+          "Des préoccupations ou réserves vis-à-vis de l’IA ont émergé au sein de notre organisation.",
+          "Des temps de veille, d’acculturation ou de formation sont proposés aux équipes.",
+          "Notre organisation a déjà mené des actions de sensibilisation sur le numérique ou la donnée.",
+          "Nous encourageons le partage de retours d’expériences, même en cas d’échec.",
+          "Les collaborateurs sont globalement confiants dans leur capacité à s’adapter aux évolutions.",
+          "Nous avons déjà abordé les questions environnementales, juridiques, éthiques ou sociétales liées à l’IA.",
+          "La direction et les équipes échangent régulièrement sur l’évolution des métiers.",
+          "Les collaborateurs sont ouverts à l’expérimentation et à l’innovation."
+        ]
+      },
+      {
+        "id": "donnees",
+        "title": "Données",
+        "questions": [
+          "Nous avons une idée des données que nous pourrions valoriser dans le cadre d’un projet IA.",
+          "Nous avons conscience de la valeur potentielle des données pour notre activité.",
+          "Nous connaissons les grandes catégories de données que nous utilisons.",
+          "Des réflexions ont été entamées sur la qualité ou l’accessibilité des données.",
+          "Des questions de sécurité, de confidentialité ou de RGPD sont déjà prises en compte.",
+          "Nous disposons d’outils permettant de rassembler ou structurer les données.",
+          "Certains services identifient des besoins liés à l’exploitation de leurs données.",
+          "Notre organisation produit, collecte ou utilise déjà des données."
+        ]
+      },
+      {
+        "id": "cas_usage",
+        "title": "Cas d’usage",
+        "questions": [
+          "Nous avons mené des ateliers ou discussions pour imaginer des cas d’usage IA.",
+          "Nous avons conscience que l’IA peut contribuer à la prise de décision, l’automatisation ou la prédiction.",
+          "Des collaborateurs ont identifié des situations concrètes où l’IA pourrait être utile.",
+          "Nous avons réfléchi à l’intérêt ou aux limites de certains cas d’usage.",
+          "Des exemples d’usages dans d’autres structures nous inspirent.",
+          "Nous savons distinguer automatisation simple et usage IA.",
+          "Certaines tâches récurrentes pourraient être traitées par l’IA.",
+          "Des outils utilisant déjà de l’IA sont utilisés dans notre structure."
+        ]
+      },
+      {
+        "id": "ecosysteme",
+        "title": "Écosystème",
+        "questions": [
+          "Nous savons à qui nous adresser pour obtenir des retours d’expérience.",
+          "Nous sommes en lien avec d’autres structures ayant des interrogations similaires.",
+          "Nous sommes en lien avec des acteurs du numérique ou de l’innovation.",
+          "Nous connaissons des prestataires capables de nous accompagner sur l’IA.",
+          "Nous participons à des événements ou groupes liés au numérique ou à l’innovation.",
+          "Nous avons identifié des partenaires pour mener des projets IA.",
+          "Nous avons bénéficié ou identifié des dispositifs d’accompagnement.",
+          "L’appui sur un écosystème est perçu comme un levier important."
+        ]
+      },
+      {
+        "id": "expertise",
+        "title": "Expertise",
+        "questions": [
+          "Nous savons globalement ce que recouvre l’IA.",
+          "Nous avons conscience qu’il existe plusieurs formes d’IA.",
+          "Notre organisation a été sensibilisée aux notions d’algorithmes et de données.",
+          "Nous avons besoin de formations pour mieux comprendre l’IA.",
+          "Nous avons identifié des personnes avec des compétences IA ou data.",
+          "Certains collaborateurs souhaitent monter en compétence.",
+          "Des échanges ont eu lieu sur les usages ou limites de l’IA.",
+          "Nous savons que des compétences spécifiques seront nécessaires pour piloter des projets IA."
+        ]
+      },
+      {
+        "id": "technologie",
+        "title": "Technologie",
+        "questions": [
+          "Nous avons conscience que l’IA nécessite des conditions techniques spécifiques.",
+          "Nous envisageons des outils IA accessibles sans développement complexe.",
+          "Nous disposons d’une stratégie pour intégrer l’IA dans les systèmes existants.",
+          "Nous avons évalué les capacités techniques du SI.",
+          "Nous utilisons déjà des outils numériques au quotidien.",
+          "Certains logiciels utilisés intègrent des fonctions d’IA.",
+          "Nous avons une infrastructure informatique adaptée.",
+          "Nous disposons d’interlocuteurs techniques internes ou externes."
+        ]
+      },
+      {
+        "id": "mise_en_oeuvre",
+        "title": "Mise en œuvre",
+        "questions": [
+          "Nous avons conscience que le déploiement de l’IA nécessite une démarche progressive.",
+          "Nous avons réfléchi aux moyens d’accompagner les équipes lors d’un déploiement.",
+          "Nous savons mobiliser les bons interlocuteurs pour accompagner un projet IA.",
+          "Nous avons communiqué autour de projets innovants en interne.",
+          "Nous avons l’habitude de documenter les étapes clés d’un projet.",
+          "Nous savons évaluer les impacts d’un projet sur les métiers.",
+          "Nous avons une expérience des expérimentations ou phases pilotes.",
+          "Nous sommes capables de conduire un projet structuré (objectifs, jalons, livrables)."
+        ]
+      }
+    ]
+  }
+}
