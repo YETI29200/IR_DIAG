@@ -48,8 +48,10 @@ for (const table of tables) {
 // Détail des flash diagnostics
 console.log('\n=== FLASH DIAGNOSTICS (détail) ===')
 try {
+  const cols = db.prepare("PRAGMA table_info(flash_diagnostics)").all().map(c => c.name)
+  const statusCol = cols.includes('status') ? 'status' : (cols.includes('questionnaire_type') ? 'questionnaire_type' : '"?"')
   const flashes = db.prepare(`
-    SELECT id, organization_name, created_at, status
+    SELECT id, organization_name, created_at, ${statusCol} as status
     FROM flash_diagnostics
     ORDER BY created_at DESC
     LIMIT 20
