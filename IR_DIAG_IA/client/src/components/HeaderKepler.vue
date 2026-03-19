@@ -34,6 +34,9 @@
           
           <div v-if="isAuthenticated" class="user-actions">
             <span class="user-welcome">Bonjour, {{ userName }}</span>
+            <button v-if="isAdminUser" @click="backupDatabase" class="btn-backup" :disabled="backupLoading" :title="backupStatus">
+              {{ backupLoading ? '⏳' : '💾' }} {{ backupLoading ? 'Sauvegarde...' : 'Sauvegarder BD' }}
+            </button>
             <button @click="logout" class="btn-logout">Déconnexion</button>
             <router-link to="/admin/dashboard" class="pill-button-cyan scale-90 btn-space">Espace Admin</router-link>
           </div>
@@ -50,27 +53,63 @@ import { inject } from 'vue'
 const router = inject('router') as any
 
 const isAuthenticated = ref(false)
+const isAdminUser = ref(false)
 const userName = ref('')
+const backupLoading = ref(false)
+const backupStatus = ref('')
 
 const checkAuth = () => {
   const token = localStorage.getItem('auth_token')
   const consultant = JSON.parse(localStorage.getItem('consultant') || '{}')
+  const roles = JSON.parse(localStorage.getItem('roles') || '[]')
   isAuthenticated.value = !!token
+  isAdminUser.value = Array.isArray(roles) && roles.includes('admin')
   userName.value = consultant.firstName || ''
 }
 
 onMounted(checkAuth)
 
 // Watch for route changes to refresh auth state
-// (Router is injected, we can watch its current path if it's a ref)
 if (router && router.getCurrentPath) {
   watch(router.getCurrentPath(), checkAuth)
+}
+
+const backupDatabase = async () => {
+  backupLoading.value = true
+  backupStatus.value = ''
+  try {
+    const token = localStorage.getItem('auth_token')
+    const roles = localStorage.getItem('roles') || '[]'
+    const res = await fetch('/api/admin/backup', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'X-User-Roles': roles,
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = await res.json()
+    if (res.ok) {
+      backupStatus.value = `✅ Sauvegardé : ${data.filename}`
+      alert(`✅ Sauvegarde réussie !\nFichier : ${data.filename}\nContenu : ${data.stats?.consultants ?? 0} consultants, ${data.stats?.missions ?? 0} missions, ${data.stats?.flash_diagnostics ?? 0} flash diagnostics`)
+    } else {
+      backupStatus.value = `❌ Erreur : ${data.error}`
+      alert(`❌ Erreur de sauvegarde : ${data.error}`)
+    }
+  } catch (e: any) {
+    backupStatus.value = `❌ ${e.message}`
+    alert(`❌ Erreur réseau : ${e.message}`)
+  } finally {
+    backupLoading.value = false
+  }
 }
 
 const logout = () => {
   localStorage.removeItem('auth_token')
   localStorage.removeItem('consultant')
+  localStorage.removeItem('roles')
   isAuthenticated.value = false
+  isAdminUser.value = false
   router.push('/auth')
 }
 </script>
@@ -190,6 +229,27 @@ const logout = () => {
   color: #ef4444;
   &:hover {
     text-decoration: underline;
+  }
+}
+
+.btn-backup {
+  background: #1d4ed8;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: white;
+  padding: 0.3rem 0.7rem;
+  transition: background 0.2s;
+  white-space: nowrap;
+  &:hover:not(:disabled) {
+    background: #1e40af;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 }
 

@@ -1,0 +1,184 @@
+{
+  "sections": [
+    {
+      "id": "usages_de_lia",
+      "label": "Usages de l'IA",
+      "questions": [
+        {
+          "id": "usages_q1",
+          "label": "Votre organisation utilise-t-elle des outils d'intelligence artificielle dans ses activités quotidiennes ?",
+          "options": [
+            { "value": "non", "label": "Pas encore" },
+            { "value": "exploration", "label": "En exploration" },
+            { "value": "pilote", "label": "Projets pilotes" },
+            { "value": "oui", "label": "Oui, en production" }
+          ]
+        },
+        {
+          "id": "usages_q2",
+          "label": "Avez-vous identifié des cas d'usage concrets de l'IA pour votre secteur d'activité ?",
+          "options": [
+            { "value": "non", "label": "Non" },
+            { "value": "quelques_uns", "label": "Quelques idées" },
+            { "value": "plusieurs", "label": "Plusieurs cas identifiés" },
+            { "value": "oui", "label": "Oui, un portefeuille structuré" }
+          ]
+        },
+        {
+          "id": "usages_q3",
+          "label": "Mesurez-vous le retour sur investissement (ROI) de vos initiatives IA ?",
+          "options": [
+            { "value": "non", "label": "Non" },
+            { "value": "informellement", "label": "Informellement" },
+            { "value": "partiellement", "label": "Sur certains projets" },
+            { "value": "oui", "label": "Oui, de façon systématique" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "label": "Données",
+      "questions": [
+        {
+          "id": "data_q1",
+          "label": "Vos données sont-elles centralisées et accessibles facilement par les équipes qui en ont besoin ?",
+          "options": [
+            { "value": "non", "label": "Non, données dispersées" },
+            { "value": "partiel", "label": "Partiellement" },
+            { "value": "majoritairement", "label": "Majoritairement" },
+            { "value": "oui", "label": "Oui, centralisées et accessibles" }
+          ]
+        },
+        {
+          "id": "data_q2",
+          "label": "Disposez-vous d'une politique de gestion et de qualité des données (gouvernance) ?",
+          "options": [
+            { "value": "non", "label": "Non" },
+            { "value": "informelle", "label": "Pratiques informelles" },
+            { "value": "partielle", "label": "Politique partielle" },
+            { "value": "oui", "label": "Oui, formalisée et appliquée" }
+          ]
+        },
+        {
+          "id": "data_q3",
+          "label": "Vos données sont-elles conformes au RGPD et sécurisées ?",
+          "options": [
+            { "value": "non", "label": "Non contrôlé" },
+            { "value": "partiel", "label": "Partiellement conforme" },
+            { "value": "majoritairement", "label": "Majoritairement conforme" },
+            { "value": "oui", "label": "Oui, totalement conforme" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "competences_culture",
+      "label": "Compétences & Culture",
+      "questions": [
+        {
+          "id": "culture_q1",
+          "label": "Vos collaborateurs sont-ils sensibilisés aux enjeux et opportunités de l'IA ?",
+          "options": [
+            { "value": "non", "label": "Non" },
+            { "value": "quelques_uns", "label": "Quelques personnes" },
+            { "value": "une_partie", "label": "Une bonne partie" },
+            { "value": "oui", "label": "Oui, large sensibilisation" }
+          ]
+        },
+        {
+          "id": "culture_q2",
+          "label": "Votre organisation encourage-t-elle l'expérimentation et l'innovation autour de l'IA ?",
+          "options": [
+            { "value": "non", "label": "Non, culture prudente" },
+            { "value": "peu", "label": "Peu encouragée" },
+            { "value": "partiellement", "label": "Partiellement" },
+            { "value": "oui", "label": "Oui, culture d'innovation forte" }
+          ]
+        },
+        {
+          "id": "culture_q3",
+          "label": "Avez-vous des compétences IA / Data en interne ou un accès à des expertises externes ?",
+          "options": [
+            { "value": "non", "label": "Non" },
+            { "value": "externes", "label": "Uniquement externes" },
+            { "value": "limitees", "label": "Compétences limitées en interne" },
+            { "value": "oui", "label": "Oui, compétences solides" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure",
+      "questions": [
+        {
+          "id": "infra_q1",
+          "label": "Votre infrastructure informatique est-elle adaptée pour déployer des solutions d'IA ?",
+          "options": [
+            { "value": "non", "label": "Non, infrastructure limitée" },
+            { "value": "partiel", "label": "Partiellement adaptée" },
+            { "value": "majoritairement", "label": "Majoritairement adaptée" },
+            { "value": "oui", "label": "Oui, totalement prête" }
+          ]
+        },
+        {
+          "id": "infra_q2",
+          "label": "Utilisez-vous des services Cloud pour vos applications et données ?",
+          "options": [
+            { "value": "non", "label": "Non, tout est on-premise" },
+            { "value": "peu", "label": "Très peu" },
+            { "value": "hybride", "label": "Approche hybride" },
+            { "value": "oui", "label": "Oui, principalement Cloud" }
+          ]
+        },
+        {
+          "id": "infra_q3",
+          "label": "Disposez-vous d'outils de cybersécurité adaptés aux risques liés à l'IA ?",
+          "options": [
+            { "value": "non", "label": "Non" },
+            { "value": "basique", "label": "Sécurité basique" },
+            { "value": "partiel", "label": "Partiellement couverts" },
+            { "value": "oui", "label": "Oui, dispositif complet" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "strategie_vision",
+      "label": "Stratégie & Vision",
+      "questions": [
+        {
+          "id": "strat_q1",
+          "label": "L'IA est-elle intégrée dans la stratégie globale de votre organisation ?",
+          "options": [
+            { "value": "non", "label": "Non" },
+            { "value": "discussion", "label": "En discussion" },
+            { "value": "partiellement", "label": "Partiellement intégrée" },
+            { "value": "oui", "label": "Oui, axe stratégique majeur" }
+          ]
+        },
+        {
+          "id": "strat_q2",
+          "label": "La direction de votre organisation soutient-elle activement les projets IA ?",
+          "options": [
+            { "value": "non", "label": "Non, peu d'intérêt" },
+            { "value": "interesse", "label": "Intéressée mais passive" },
+            { "value": "engage", "label": "Engagée" },
+            { "value": "oui", "label": "Oui, porteur du changement" }
+          ]
+        },
+        {
+          "id": "strat_q3",
+          "label": "Disposez-vous d'un budget dédié aux projets d'IA et de transformation numérique ?",
+          "options": [
+            { "value": "non", "label": "Non" },
+            { "value": "ponctuel", "label": "Budget ponctuel" },
+            { "value": "partiel", "label": "Budget partiel" },
+            { "value": "oui", "label": "Oui, budget dédié et récurrent" }
+          ]
+        }
+      ]
+    }
+  ]
+}

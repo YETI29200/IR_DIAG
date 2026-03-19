@@ -6,6 +6,15 @@ dist/
 .env.local
 *.db
 *.db-journal
-data/
+data/*.db
+data/*.db-journal
+data/*.db-shm
+data/*.db-wal
 .vite/
 
+data/*.avant_recuperation
+data/*.avant_recuperation-wal
+data/*.avant_recuperation-shm
+data/backups/
+data/*.db-wal
+data/*.db-shm

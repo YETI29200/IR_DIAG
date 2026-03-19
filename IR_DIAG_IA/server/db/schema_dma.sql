@@ -1,10 +1,10 @@
--- AI & Data Maturity Diagnostic Platform - SQLite Schema
--- Enforces foreign keys and cascades
+-- DMA (Digital Maturity Assessment) - Schema SQLite
+-- Tables pour les missions, consultants, réponses, recommandations
 
 PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;
 
--- Consultants table
+-- Consultants (utilisateurs de la plateforme)
 CREATE TABLE IF NOT EXISTS consultants (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS consultants (
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- User roles (admin, consultant)
+-- Rôles utilisateurs (admin, consultant)
 CREATE TABLE IF NOT EXISTS user_roles (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     consultant_id INTEGER NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS user_roles (
     UNIQUE(consultant_id, role)
 );
 
--- Missions table
+-- Missions DMA
 CREATE TABLE IF NOT EXISTS missions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     consultant_id INTEGER NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS missions (
     FOREIGN KEY (consultant_id) REFERENCES consultants(id) ON DELETE CASCADE
 );
 
--- Mission services (departments/units within organization)
+-- Services/départements de l'organisation
 CREATE TABLE IF NOT EXISTS mission_services (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     mission_id INTEGER NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS mission_services (
     UNIQUE(mission_id, code)
 );
 
--- Mission contacts
+-- Contacts de mission
 CREATE TABLE IF NOT EXISTS mission_contacts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     mission_id INTEGER NOT NULL,
@@ -81,12 +81,13 @@ CREATE TABLE IF NOT EXISTS mission_contacts (
     email TEXT NOT NULL,
     phone TEXT,
     is_primary BOOLEAN NOT NULL DEFAULT 0,
+    is_referent BOOLEAN NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (mission_id) REFERENCES missions(id) ON DELETE CASCADE,
     FOREIGN KEY (service_id) REFERENCES mission_services(id) ON DELETE SET NULL
 );
 
--- Anonymous sessions (questionnaire responses)
+-- Sessions anonymes (questionnaire)
 CREATE TABLE IF NOT EXISTS sessions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     mission_id INTEGER NOT NULL,
@@ -98,7 +99,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     FOREIGN KEY (service_id) REFERENCES mission_services(id) ON DELETE SET NULL
 );
 
--- Questionnaire responses
+-- Réponses aux questions
 CREATE TABLE IF NOT EXISTS responses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id INTEGER NOT NULL,
@@ -110,7 +111,7 @@ CREATE TABLE IF NOT EXISTS responses (
     UNIQUE(session_id, question_id)
 );
 
--- Recommendations
+-- Recommandations
 CREATE TABLE IF NOT EXISTS recommendations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     mission_id INTEGER NOT NULL,
@@ -127,7 +128,7 @@ CREATE TABLE IF NOT EXISTS recommendations (
     FOREIGN KEY (approved_by) REFERENCES consultants(id) ON DELETE SET NULL
 );
 
--- Recommendations history (audit trail)
+-- Historique des recommandations (audit)
 CREATE TABLE IF NOT EXISTS recommendations_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     recommendation_id INTEGER NOT NULL,
@@ -140,7 +141,7 @@ CREATE TABLE IF NOT EXISTS recommendations_history (
     FOREIGN KEY (modified_by) REFERENCES consultants(id) ON DELETE SET NULL
 );
 
--- Email logs (simulated sends)
+-- Logs d'emails
 CREATE TABLE IF NOT EXISTS email_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     mission_id INTEGER,
@@ -154,7 +155,23 @@ CREATE TABLE IF NOT EXISTS email_logs (
     FOREIGN KEY (contact_id) REFERENCES mission_contacts(id) ON DELETE SET NULL
 );
 
--- Indexes for performance
+-- Étapes de suivi mission
+CREATE TABLE IF NOT EXISTS timeline_steps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    mission_id INTEGER NOT NULL,
+    step_number INTEGER NOT NULL,
+    step_type TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    planned_date TEXT,
+    completed_date TEXT,
+    notes TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(mission_id, step_number, step_type),
+    FOREIGN KEY (mission_id) REFERENCES missions(id) ON DELETE CASCADE
+);
+
+-- Index de performance
 CREATE INDEX IF NOT EXISTS idx_consultants_email ON consultants(email);
 CREATE INDEX IF NOT EXISTS idx_user_roles_consultant ON user_roles(consultant_id);
 CREATE INDEX IF NOT EXISTS idx_missions_consultant ON missions(consultant_id);
@@ -170,28 +187,4 @@ CREATE INDEX IF NOT EXISTS idx_responses_dimension ON responses(dimension);
 CREATE INDEX IF NOT EXISTS idx_recommendations_mission ON recommendations(mission_id);
 CREATE INDEX IF NOT EXISTS idx_recommendations_session ON recommendations(session_id);
 CREATE INDEX IF NOT EXISTS idx_email_logs_mission ON email_logs(mission_id);
-
-
--- Flash diagnostics table
-CREATE TABLE IF NOT EXISTS flash_diagnostics (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    organization_name TEXT NOT NULL,
-    contact_name TEXT NOT NULL,
-    contact_email TEXT NOT NULL,
-    contact_phone TEXT,
-    contact_role TEXT,
-    employees TEXT,
-    sector TEXT,
-    postal_code TEXT,
-    department TEXT,
-    region TEXT,
-    global_score INTEGER,
-    maturity_level TEXT,
-    answers_json TEXT,
-    dimension_scores_json TEXT,
-    recommendations_json TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE INDEX IF NOT EXISTS idx_flash_diagnostics_email ON flash_diagnostics(contact_email);
-CREATE INDEX IF NOT EXISTS idx_flash_diagnostics_region ON flash_diagnostics(region);
+CREATE INDEX IF NOT EXISTS idx_timeline_steps_mission ON timeline_steps(mission_id);
